@@ -10,6 +10,12 @@ const exceptions = {
     回數: "횟수",
 }
 
+const singleCharReadings = Object.fromEntries(
+    fs.readFileSync('dic1.txt', 'utf8')
+            .split('\n').filter((line) => !line.startsWith('#'))
+            .map((line) => line.split('\t')).filter((entry) => entry.length == 2)
+)
+
 const content = fs.readFileSync('hanja.txt', 'utf8')
 const comments = content.split('\n').filter((line) => line.startsWith('#'))
 const entries = content.split('\n').filter((line) => !line.startsWith('#')).map((line) => line.trim().split(':')).filter((entry) => entry && entry.length == 3)
@@ -32,7 +38,9 @@ const legalWords = words.filter(([reading, hanja]) => {
     return hanja.length == legalCount
 })
 
-const output = [...chars, ...legalWords]
+const legallyReadChars = chars.filter(([reading, hanja]) => !singleCharReadings[hanja] || singleCharReadings[hanja] == reading)
+
+const output = [...legallyReadChars, ...legalWords]
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([reading, hanja]) => `${hanja}\t${reading}`).join('\n')
 
