@@ -1,8 +1,7 @@
 
 const path = require('path')
 const {buildDict} = require('./dictionary')
-const dic2 = buildDict(path.join(__dirname, '../dic/dic2.txt'))
-const dic4 = buildDict(path.join(__dirname, '../dic/dic4.txt'))
+const dic = buildDict(path.join(__dirname, '../dic/hanja.filtered.txt'))
 const jp = buildDict(path.join(__dirname, '../dic/jp.txt'))
 const cn = buildDict(path.join(__dirname, '../dic/cn.txt'))
 const MAX_LENGTH = 100
@@ -22,7 +21,8 @@ const convertHanjaReading = (str, formatResult = (_hanja, reading) => reading, i
         }
         for(let j = str.length; j > i; j--) {
             const key = str.slice(i, j)
-            const value = dic4[key] || dic2[key]
+            const value = dic[key]
+            console.log(key, value)
             if(value) {
                 result += initial ? initialSoundLaw(value) : value
                 i += j - i
@@ -41,7 +41,7 @@ const convertHanjaReading = (str, formatResult = (_hanja, reading) => reading, i
         else return formatResult(output, input)
     }).join('')
 }
-const normalizeHanja = (str) => str.normalize('NFC').split('').map((c) => dic2[c] ? c : jp[c] || cn[c] || c).join('')
+const normalizeHanja = (str) => str.normalize('NFC').split('').map((c) => dic[c] ? c : jp[c] || cn[c] || c).join('')
 const initialSoundLaw = (str) => {
     const c = str.charAt(0).normalize('NFD').split('')
     if(c[0] == 'ᄅ') c[0] = 'ᄂ'
