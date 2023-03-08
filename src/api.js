@@ -1,7 +1,7 @@
 
 const express = require('express')
 const bodyParser = require('body-parser')
-const {convertHanjaReading} = require('./index')
+const {convert, group, stringify} = require('./index')
 
 const parseFormat = (str) => {
     return (hanja, reading) => {
@@ -17,9 +17,11 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}))
 
 app.post('/', (req, res) => {
-    const format = parseFormat(req.body.format || 'r')
-    const text = convertHanjaReading(req.body.text || '', format)
-    const result = {text}
+    const format = parseFormat(req.body.format || '{r}')
+    const converted = convert(req.body.text || '')
+    const grouped = ((req.body.group || '').toString() == 'true') ? group(converted) : converted
+    const stringified = ((req.body.stringify || '').toString() == 'true') ? stringify(grouped, format) : grouped
+    const result = {text: stringified}
     res.send(JSON.stringify(result))
 })
 
