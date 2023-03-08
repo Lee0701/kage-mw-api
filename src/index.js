@@ -80,4 +80,5 @@ const stringify = (arr, format = (_i, o) => o) => {
         else return format(input, output)
     }).join('')
 }
-module.exports = {convert, group, stringify, initialSoundLaw}
+const convertAndFormat = (str, format) => stringify(group(convert(str)), format)
+module.exports = {convertAndFormat, convert, group, stringify, initialSoundLaw}
