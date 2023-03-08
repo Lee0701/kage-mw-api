@@ -22,7 +22,6 @@ const convertHanjaReading = (str, formatResult = (_hanja, reading) => reading, i
         for(let j = str.length; j > i; j--) {
             const key = str.slice(i, j)
             const value = dic[key]
-            console.log(key, value)
             if(value) {
                 result += initial ? initialSoundLaw(value) : value
                 i += j - i
