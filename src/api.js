@@ -21,7 +21,7 @@ app.post('/', (req, res) => {
     const converted = convert(req.body.text || '')
     const grouped = ((req.body.group || '').toString() == 'true') ? group(converted) : converted
     const stringified = ((req.body.stringify || '').toString() == 'true') ? stringify(grouped, format) : grouped
-    const result = {text: stringified}
+    const result = {result: stringified}
     res.send(JSON.stringify(result))
 })
 
