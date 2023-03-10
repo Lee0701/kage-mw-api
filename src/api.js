@@ -1,6 +1,5 @@
 
 const express = require('express')
-const bodyParser = require('body-parser')
 const {convert, group, stringify} = require('./index')
 
 const parseFormat = (str) => {
@@ -13,8 +12,8 @@ const parseFormat = (str) => {
 
 const app = express()
 
-app.use(bodyParser.json({limit: '10mb'}))
-app.use(bodyParser.urlencoded({limit: '10mb', extended: true}))
+app.use(express.json({limit: '10mb'}))
+app.use(express.urlencoded({limit: '10mb', extended: true}))
 
 app.post('/', (req, res) => {
     const format = parseFormat(req.body.format || '{r}')
