@@ -1,6 +1,5 @@
 # Project specific
-dic1.txt
-hanja.txt
+data/
 
 # General
 .DS_Store
