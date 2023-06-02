@@ -1,36 +1,34 @@
 
 const fs = require('fs')
 const path = require('path')
+const readline = require('readline')
 const { Kage } = require('@kurgm/kage-engine')
 
-const loadTsv = (file) => {
-    const glypheme = Object.fromEntries(fs.readFileSync(file, 'utf8').split('\n')
-            .map((line) => line.split('\t'))
-            .filter((entry) => entry.length == 2)
-            .map(([name, data]) => [name, preprocessData(data)]))
-    const decompose = {}
-    return { glypheme, decompose }
-}
+const loadData = (kage, file) => new Promise((resolve, reject) => {
+    const rl = readline.createInterface({input: fs.createReadStream(file)})
+    rl.on('line', (line) => {
+        const entry = line.split(/[\|\t]/)
+        if(entry.length != 3) return
+        const [name, related, data] = entry.map((e) => e.trim())
+        kage.kBuhin.push(name, data)
+    })
+    rl.on('close', () => resolve(kage))
+})
 
 const preprocessData = (name) => {
     return name.replace(/\@\d+/g, '')
 }
 
-const loadRaw = (file) => {
-    const content = fs.readFileSync(file, 'utf8')
-    const glypheme = content.split('\n').map((line) => line.split('|'))
-            .filter((entry) => entry.length == 3)
-            .map(([name, related, data]) => [name.trim(), data.trim()])
-    const decompose = {}
-    return { glypheme, decompose }
+const getDefault = async() => {
+    const kage = new Kage()
+    await Promise.all([
+        // load(kage, path.join('data', 'dump_all_versions.txt')),
+        loadData(kage, path.join('data', 'dump_newest_only.txt')),
+    ])
+    return kage
 }
 
-const DEFAULT = new Kage()
-const { glypheme } = loadRaw(path.join('data', 'dump_newest_only.txt'))
-glypheme.forEach(([name, data]) => DEFAULT.kBuhin.push(name, data))
-
 module.exports = {
-    DEFAULT,
-    loadTsv,
-    loadRaw,
+    getDefault,
+    loadData,
 }
