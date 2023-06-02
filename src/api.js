@@ -14,9 +14,14 @@ const makeGlyphWithName = (polygons, kage, name) => {
 }
 
 const makeGlyphWithData = (polygons, kage, data) => {
-    kage.kBuhin.push('temp', data)
+    kage.kBuhin.push('temp', preprocessData(data))
     kage.makeGlyph(polygons, 'temp')
 }
+
+const preprocessData = (data) => data.split('\n')
+        .map((line) => line.trim())
+        .filter((line) => line.length)
+        .join('$')
 
 const main = async () => {
     const kage = await getDefault()
