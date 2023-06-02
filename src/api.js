@@ -9,11 +9,14 @@ app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 
 app.post('/', (req, res) => {
+    const char = req.body.char || ''
     const name = req.body.name || ''
     const data = req.body.data || ''
     const content = req.body.content || ''
     const polygons = new Polygons()
-    if(name) {
+    if(char) {
+        kage.makeGlyph(polygons, 'u' + char.codePointAt(0).toString(16).padStart(4, '0'))
+    } else if(name) {
         kage.makeGlyph(polygons, name)
     } else if(data) {
         kage.kBuhin.push('temp', data)
@@ -22,6 +25,8 @@ app.post('/', (req, res) => {
         if(content.includes(':')) {
             kage.kBuhin.push('temp', content)
             kage.makeGlyph(polygons, 'temp')
+        } else if(content.split('').filter((c) => !(c >= '!' && c <= '~')).length) {
+            kage.makeGlyph(polygons, 'u' + content.codePointAt(0).toString(16).padStart(4, '0'))
         } else {
             kage.makeGlyph(polygons, content)
         }
