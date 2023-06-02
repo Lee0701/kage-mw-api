@@ -1,10 +1,11 @@
 {
-  "name": "hanja-reading",
+  "name": "kage-mw-api",
   "version": "0.0.1",
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "api": "node src/api.js"
+    "api": "node src/api.js",
+    "update": "node src/update.js"
   },
   "keywords": [],
   "author": "",

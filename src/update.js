@@ -1,4 +1,5 @@
 
+require('dotenv').config()
 const fs = require('fs')
 const path = require('path')
 const axios = require('axios')
@@ -11,6 +12,7 @@ axios.defaults.paramsSerializer = (params) => qs.stringify(params)
 
 const updateAllPages = async (baseUrl) => {
     const pages = await allCharPages(baseUrl)
+    console.info(`Updating all ${pages.length} pages...`)
     for(const page of pages) {
         await updatePage(baseUrl, page)
     }
@@ -68,6 +70,9 @@ const main = async () => {
         await updatePage(baseUrl, title)
     } else if(args.length >= 1) {
         [baseUrl] = args
+        await updateAllPages(baseUrl)
+    } else {
+        baseUrl = process.env.WIKI_URL
         await updateAllPages(baseUrl)
     }
 }
