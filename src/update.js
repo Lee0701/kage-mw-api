@@ -10,7 +10,37 @@ const data = fs.existsSync(dataFile) ? readTSVData(dataFile) : {}
 
 axios.defaults.paramsSerializer = (params) => qs.stringify(params)
 
-const update = async (baseUrl, title) => {
+const updateAll = async (baseUrl) => {
+    const pages = await allCharPages(baseUrl)
+    for(const page of pages) {
+        await updatePage(baseUrl, page)
+    }
+}
+
+const allCharPages = async (baseUrl) => {
+    const url = `${baseUrl}/api.php`
+    const params = {
+        format: 'json',
+        action: 'query',
+        list:'allpages',
+        apnamespace: 3000,
+        apcontinue: '',
+    }
+    const data = []
+    while(true) {
+        const response = await axios.get(url, {params})
+        const allpages = response.data.query.allpages
+        if(!allpages) break
+        data.push(...allpages.map((p) => p.title))
+        const cont = response.data.continue
+        if(cont && cont.apcontinue) {
+            params.apcontinue = cont.apcontinue
+        } else break
+    }
+    return data
+}
+
+const updatePage = async (baseUrl, title) => {
     const url = `${baseUrl}/api.php`
     const params = {
         format: 'json',
@@ -36,7 +66,10 @@ const main = async () => {
     const args = process.argv.slice(2)
     if(args.length >= 2) {
         [baseUrl, title] = args
-        await update(baseUrl, title)
+        await updatePage(baseUrl, title)
+    } else if(args.length >= 1) {
+        [baseUrl] = args
+        await updateAll(baseUrl)
     }
 }
 
@@ -45,5 +78,5 @@ if(require.main === module) {
 }
 
 module.exports = {
-    update,
+    updatePage,
 }
