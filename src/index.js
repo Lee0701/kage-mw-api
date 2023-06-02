@@ -2,6 +2,7 @@
 const fs = require('fs')
 const path = require('path')
 const readline = require('readline')
+const { readTSVData } = require('./functions')
 const { Kage } = require('@kurgm/kage-engine')
 
 const loadData = (kage, file) => new Promise((resolve, reject) => {
@@ -15,8 +16,11 @@ const loadData = (kage, file) => new Promise((resolve, reject) => {
     rl.on('close', () => resolve(kage))
 })
 
-const preprocessData = (name) => {
-    return name.replace(/\@\d+/g, '')
+const readCustomData = async (kage, file) => {
+    const data = readTSVData(file)
+    Object.entries(data).forEach(([name, data]) => {
+        kage.kBuhin.push(name, data)
+    })
 }
 
 const getDefault = async() => {
@@ -24,6 +28,7 @@ const getDefault = async() => {
     await Promise.all([
         // load(kage, path.join('data', 'dump_all_versions.txt')),
         loadData(kage, path.join('data', 'dump_newest_only.txt')),
+        readCustomData(kage, path.join('data', 'wiki.tsv')),
     ])
     return kage
 }

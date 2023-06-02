@@ -2,8 +2,7 @@
 const express = require('express')
 const { getDefault } = require('./index')
 const { Polygons } = require('@kurgm/kage-engine')
-
-const allAscii = (str) => str.split('').filter((c) =>!(c >= '!' && c <= '~')).length == 0
+const { toInlineData, isAllAscii } = require('./functions')
 
 const makeGlyphWithChar = (polygons, kage, char) => {
     kage.makeGlyph(polygons, 'u' + char.codePointAt(0).toString(16).padStart(4, '0'))
@@ -14,14 +13,9 @@ const makeGlyphWithName = (polygons, kage, name) => {
 }
 
 const makeGlyphWithData = (polygons, kage, data) => {
-    kage.kBuhin.push('temp', preprocessData(data))
+    kage.kBuhin.push('temp', toInlineData(data))
     kage.makeGlyph(polygons, 'temp')
 }
-
-const preprocessData = (data) => data.split('\n')
-        .map((line) => line.trim())
-        .filter((line) => line.length)
-        .join('$')
 
 const main = async () => {
     const kage = await getDefault()
@@ -41,7 +35,7 @@ const main = async () => {
         else if(data) makeGlyphWithData(polygons, kage, data)
         else if(content) {
             if(content.includes(':')) makeGlyphWithData(polygons, kage, content)
-            else if(allAscii(content)) makeGlyphWithName(polygons, kage, content)
+            else if(isAllAscii(content)) makeGlyphWithName(polygons, kage, content)
             else makeGlyphWithChar(polygons, kage, content)
         } else {
             res.status(400).send()
