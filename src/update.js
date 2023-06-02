@@ -7,7 +7,6 @@ const { normalizeTitle, toInlineData, readTSVData, writeTSVData } = require('./f
 
 const dataFile = path.join('data', 'wiki.tsv')
 const data = fs.existsSync(dataFile) ? readTSVData(dataFile) : {}
-
 axios.defaults.paramsSerializer = (params) => qs.stringify(params)
 
 const updateAllPages = async (baseUrl) => {

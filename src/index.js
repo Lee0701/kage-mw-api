@@ -17,7 +17,7 @@ const loadData = (kage, file) => new Promise((resolve, reject) => {
 })
 
 const readCustomData = async (kage, file) => {
-    const data = readTSVData(file)
+    const data = fs.existsSync(file) ? readTSVData(file) : {}
     Object.entries(data).forEach(([name, data]) => {
         kage.kBuhin.push(name, data)
     })

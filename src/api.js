@@ -52,7 +52,7 @@ const main = async () => {
         const char = req.query.char || ''
         if(char) {
             updatePage(baseUrl, char)
-            res.send('200')
+            res.status(200).send('200')
         } else {
             res.status(400).send('400')
         }
