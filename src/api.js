@@ -1,7 +1,9 @@
 
+require('dotenv').config()
 const express = require('express')
 const { getDefault } = require('./index')
 const { Polygons } = require('@kurgm/kage-engine')
+const { updatePage } = require('./update')
 const { toInlineData, isAllAscii } = require('./functions')
 
 const makeGlyphWithChar = (polygons, kage, char) => {
@@ -23,7 +25,7 @@ const main = async () => {
 
     app.use(express.json())
     app.use(express.urlencoded({extended: true}))
-    
+
     app.post('/', (req, res) => {
         const char = req.body.char || ''
         const name = req.body.name || ''
@@ -44,7 +46,18 @@ const main = async () => {
         const result = polygons.generateSVG()
         res.send(result)
     })
-    
+
+    app.get('/update', (req, res) => {
+        const baseUrl = process.env.WIKI_URL
+        const char = req.query.char || ''
+        if(char) {
+            updatePage(baseUrl, char)
+            res.send('200')
+        } else {
+            res.status(400).send('400')
+        }
+    })
+
     app.listen(3000, () => {
         console.log('Listening on port 3000')
     })

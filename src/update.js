@@ -10,7 +10,7 @@ const data = fs.existsSync(dataFile) ? readTSVData(dataFile) : {}
 
 axios.defaults.paramsSerializer = (params) => qs.stringify(params)
 
-const updateAll = async (baseUrl) => {
+const updateAllPages = async (baseUrl) => {
     const pages = await allCharPages(baseUrl)
     for(const page of pages) {
         await updatePage(baseUrl, page)
@@ -69,7 +69,7 @@ const main = async () => {
         await updatePage(baseUrl, title)
     } else if(args.length >= 1) {
         [baseUrl] = args
-        await updateAll(baseUrl)
+        await updateAllPages(baseUrl)
     }
 }
 
@@ -79,4 +79,5 @@ if(require.main === module) {
 
 module.exports = {
     updatePage,
+    updateAllPages,
 }
