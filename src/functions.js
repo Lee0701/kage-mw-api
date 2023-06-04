@@ -22,7 +22,7 @@ const readTSVData = (fileName) => {
 
 const writeTSVData = (fileName, data) => {
     const entries = Object.entries(data)
-    const result = entries.map(([key, value]) => `${key}\t${value}`).join('\n')
+    const result = entries.map(([key, value]) => `${key}\t\t${value}`).join('\n')
     fs.writeFileSync(fileName, result)
 }
 

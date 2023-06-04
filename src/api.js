@@ -50,6 +50,7 @@ const main = async () => {
     app.get('/update', (req, res) => {
         const baseUrl = process.env.WIKI_URL
         const char = req.query.char || ''
+        console.log(baseUrl, char)
         if(char) {
             updatePage(baseUrl, char)
             res.status(200).send('200')
