@@ -17,6 +17,7 @@ const readTSVData = (fileName) => {
             .filter((line) => line.trim())
             .map((line) => line.split('\t'))
             .map((entry) => entry.map((item) => item.trim()))
+            .map(([key, related, value]) => [key, value])
     return Object.fromEntries(entries)
 }
 

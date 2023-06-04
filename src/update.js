@@ -43,10 +43,11 @@ const allCharPages = async (baseUrl) => {
 
 const updatePage = async (baseUrl, title) => {
     const url = `${baseUrl}/api.php`
+    const page = `字:${title}`
     const params = {
         format: 'json',
         action: 'parse',
-        page: title,
+        page: page,
         prop: 'wikitext',
         redirects: true,
     }
