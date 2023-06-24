@@ -32,7 +32,7 @@ const main = async () => {
         const data = req.body.data || ''
         const content = req.body.content || ''
         const polygons = new Polygons()
-        if(char) makeGlyphWithData(polygons, kage, char)
+        if(char) makeGlyphWithChar(polygons, kage, char)
         else if(name) makeGlyphWithName(polygons, kage, name)
         else if(data) makeGlyphWithData(polygons, kage, data)
         else if(content) {
