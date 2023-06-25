@@ -19,6 +19,13 @@ const makeGlyphWithData = (polygons, kage, data) => {
     kage.makeGlyph(polygons, 'temp')
 }
 
+const postProcess = (svg) => {
+    const classNames = 'kage'
+    svg = svg.replace('<svg', `<svg class="${classNames}"`)
+    if(svg.endsWith('\n')) svg = svg.slice(0, -1)
+    return svg
+}
+
 const main = async () => {
     const kage = await getDefault()
     const app = express()
@@ -43,7 +50,7 @@ const main = async () => {
             res.status(400).send()
             return
         }
-        const result = polygons.generateSVG()
+        const result = postProcess(polygons.generateSVG())
         res.send(result)
     })
 
