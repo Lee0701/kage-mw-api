@@ -58,7 +58,7 @@ const updatePage = async (baseUrl, title) => {
     const text = parse.wikitext['*']
     if(text.includes('<kage>') && text.includes('</kage>')) {
         const t = normalizeTitle(title)
-        const d = toInlineData(text.slice(text.indexOf('<kage>') + 6, text.indexOf('</kage')))
+        const d = toInlineData(text.slice(text.indexOf('<kage>') + 6, text.indexOf('</kage>')))
         data[t] = d
         writeTSVData(dataFile, data)
     }
