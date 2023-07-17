@@ -1,9 +1,10 @@
 
 const fs = require('fs')
 
-const isAscii = (c) => c >= ' ' && c <= '~'
+const isAscii = (c) => c >= '\0' && c <= '~'
 const isAllAscii = (str) => str.split('').filter((c) => !isAscii(c)).length == 0
 const charToAscii = (c) => 'u' + c.codePointAt(0).toString(16).padStart(4, '0')
+const nonAsciiCharToAscii = (c) => isAscii(c) ? c : charToAscii(c)
 
 const toInlineData = (data) => data.split('\n')
         .map((line) => line.trim())
@@ -38,6 +39,7 @@ module.exports = {
     isAscii,
     isAllAscii,
     charToAscii,
+    nonAsciiCharToAscii,
     normalizeTitle,
     toInlineData,
     toMultilineData,
