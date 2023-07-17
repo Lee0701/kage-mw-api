@@ -3,6 +3,7 @@ require('dotenv').config()
 const express = require('express')
 const { getDefault } = require('./index')
 const { Polygons } = require('@kurgm/kage-engine')
+const sharp = require('sharp')
 const { updatePage } = require('./update')
 const { toInlineData, isAllAscii } = require('./functions')
 
@@ -19,12 +20,13 @@ const makeGlyphWithData = (polygons, kage, data) => {
     kage.makeGlyph(polygons, 'temp')
 }
 
-const postProcess = (alt, svg) => {
+const postProcess = (alt, str) => {
     const classNames = 'kage'
     alt = alt.trim().split('\n').map((line) => line.trim()).join('$')
-    svg = svg.replace('<svg', `<svg class="${classNames}" alt="${alt}"`)
-    svg = svg.trim()
-    return svg
+    if(str.startsWith('<svg')) str = str.replace('<svg', `<svg class="${classNames}" alt="${alt}"`)
+    else if(str.startsWith('<img')) str = str.replace('<img', `<img class="${classNames}" alt="${alt}"`)
+    str = str.trim()
+    return str
 }
 
 const main = async () => {
@@ -34,11 +36,12 @@ const main = async () => {
     app.use(express.json())
     app.use(express.urlencoded({extended: true}))
 
-    app.post('/', (req, res) => {
+    app.post('/', async (req, res) => {
         const char = req.body.char || ''
         const name = req.body.name || ''
         const data = req.body.data || ''
         const content = req.body.content || ''
+        const format = req.body.format || 'png'
         const polygons = new Polygons()
         if(char) makeGlyphWithChar(polygons, kage, char)
         else if(name) makeGlyphWithName(polygons, kage, name)
@@ -51,12 +54,23 @@ const main = async () => {
             res.status(400).send()
             return
         }
+
+        let svg = polygons.generateSVG()
         const alt = char || name || data || content
-        const result = postProcess(alt, polygons.generateSVG())
-        res.send(result)
+
+        if(format == 'png') {
+            const buffer = await sharp(Buffer.from(svg)).png().toBuffer()
+            const uri = 'data:image/png;base64,' + buffer.toString('base64')
+            const img = `<img src="${uri}"/>`
+            const result = postProcess(alt, img)
+            res.send(result)
+        } else {
+            const result = postProcess(alt, svg)
+            res.send(result)
+        }
     })
 
-    app.get('/update', (req, res) => {
+    app.get('/update', async (req, res) => {
         const baseUrl = process.env.WIKI_URL
         const char = req.query.char || ''
         if(char) {
