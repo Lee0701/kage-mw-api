@@ -55,7 +55,7 @@ const main = async () => {
             return
         }
 
-        let svg = polygons.generateSVG()
+        const svg = polygons.generateSVG()
         const alt = char || name || data || content
 
         if(format == 'png') {
@@ -72,9 +72,12 @@ const main = async () => {
 
     app.get('/update', async (req, res) => {
         const baseUrl = process.env.WIKI_URL
+        const namespace = process.env.CHAR_NS_NAME
         const char = req.query.char || ''
+        console.log('update', char)
         if(char) {
-            updatePage(baseUrl, char)
+            const title = `${namespace}:${char}`
+            await updatePage(baseUrl, title)
             res.status(200).send('200')
         } else {
             res.status(400).send('400')

@@ -24,7 +24,7 @@ const allCharPages = async (baseUrl) => {
         format: 'json',
         action: 'query',
         list:'allpages',
-        apnamespace: 3000,
+        apnamespace: process.env.CHAR_NS_ID,
         apcontinue: '',
     }
     const data = []
@@ -53,7 +53,7 @@ const updatePage = async (baseUrl, title) => {
     }
     const response = await axios.get(url, {params})
     const parse = response.data.parse
-    if(!parse) return
+    if(!parse) throw new Error(`Could not parse page ${page}`)
 
     const text = parse.wikitext['*']
     if(text.includes('<kage>') && text.includes('</kage>')) {
