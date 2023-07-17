@@ -1,7 +1,7 @@
 
 require('dotenv').config()
 const express = require('express')
-const { getDefault } = require('./index')
+const { getDefault, loadCustomData } = require('./index')
 const { Polygons } = require('@kurgm/kage-engine')
 const sharp = require('sharp')
 const { updatePage } = require('./update')
@@ -77,8 +77,9 @@ const main = async () => {
         console.log('update', char)
         if(char) {
             const title = `${namespace}:${char}`
-            await updatePage(baseUrl, title)
+            const customData = await updatePage(baseUrl, title)
             res.status(200).send('200')
+            loadCustomData(kage, customData)
         } else {
             res.status(400).send('400')
         }

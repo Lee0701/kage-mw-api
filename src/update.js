@@ -1,13 +1,12 @@
 
 require('dotenv').config()
 const fs = require('fs')
-const path = require('path')
 const axios = require('axios')
 const qs = require('qs')
 const { normalizeTitle, toInlineData, readTSVData, writeTSVData } = require('./functions')
+const { customDataFile } = require('./index')
 
-const dataFile = path.join('data', 'wiki.tsv')
-const data = fs.existsSync(dataFile) ? readTSVData(dataFile) : {}
+const customData = fs.existsSync(customDataFile) ? readTSVData(customDataFile) : {}
 axios.defaults.paramsSerializer = (params) => qs.stringify(params)
 
 const updateAllPages = async (baseUrl) => {
@@ -58,10 +57,12 @@ const updatePage = async (baseUrl, title) => {
     const text = parse.wikitext['*']
     if(text.includes('<kage>') && text.includes('</kage>')) {
         const t = normalizeTitle(title)
-        const d = toInlineData(text.slice(text.indexOf('<kage>') + 6, text.indexOf('</kage>')))
-        data[t] = d
-        writeTSVData(dataFile, data)
+        const content = text.slice(text.indexOf('<kage>') + 6, text.indexOf('</kage>'))
+        const d = toInlineData(content)
+        customData[t] = d
+        writeTSVData(customDataFile, customData)
     }
+    return customData
 }
 
 const main = async () => {

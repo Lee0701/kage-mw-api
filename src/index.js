@@ -5,7 +5,10 @@ const readline = require('readline')
 const { readTSVData } = require('./functions')
 const { Kage } = require('@kurgm/kage-engine')
 
-const loadData = (kage, file) => new Promise((resolve, reject) => {
+const dataFile = path.join('data', 'dump_newest_only.txt')
+const customDataFile = path.join('data', 'wiki.tsv')
+
+const loadDataFile = (kage, file) => new Promise((resolve, reject) => {
     const rl = readline.createInterface({input: fs.createReadStream(file)})
     rl.on('line', (line) => {
         const entry = line.split(/[\|\t]/)
@@ -19,24 +22,32 @@ const loadData = (kage, file) => new Promise((resolve, reject) => {
     })
 })
 
-const readCustomData = async (kage, file) => {
-    const data = fs.existsSync(file) ? readTSVData(file) : {}
+const loadCustomData = async (kage, data) => {
     Object.entries(data).forEach(([name, data]) => {
         kage.kBuhin.push(name, data)
     })
+}
+
+const loadCustomDataFile = async (kage, file) => {
+    const data = fs.existsSync(file) ? readTSVData(file) : {}
+    await loadCustomData(kage, data)
 }
 
 const getDefault = async() => {
     const kage = new Kage()
     await Promise.all([
         // loadData(kage, path.join('data', 'dump_all_versions.txt')),
-        loadData(kage, path.join('data', 'dump_newest_only.txt')),
-        readCustomData(kage, path.join('data', 'wiki.tsv')),
+        loadDataFile(kage, dataFile),
+        loadCustomDataFile(kage, customDataFile),
     ])
     return kage
 }
 
 module.exports = {
     getDefault,
-    loadData,
+    dataFile,
+    customDataFile,
+    loadDataFile,
+    loadCustomData,
+    loadCustomDataFile,
 }
