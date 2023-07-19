@@ -4,7 +4,7 @@ const express = require('express')
 const { getDefault, loadCustomData } = require('./index')
 const { Polygons } = require('@kurgm/kage-engine')
 const sharp = require('sharp')
-const { updatePage } = require('./update')
+const { updatePage, writeCustomData } = require('./update')
 const { toInlineData, isAllAscii, nonAsciiCharToAscii } = require('./functions')
 
 const makeGlyphWithChar = (polygons, kage, char) => {
@@ -87,6 +87,7 @@ const main = async () => {
             const customData = await updatePage(baseUrl, title)
             res.status(200).send('200')
             loadCustomData(kage, customData)
+            writeCustomData(customData)
         } else {
             res.status(400).send('400')
         }

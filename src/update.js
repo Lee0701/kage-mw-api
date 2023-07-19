@@ -60,9 +60,12 @@ const updatePage = async (baseUrl, title) => {
         const content = text.slice(text.indexOf('<kage>') + 6, text.indexOf('</kage>'))
         const d = toInlineData(content)
         customData[t] = d
-        writeTSVData(customDataFile, customData)
     }
     return customData
+}
+
+const writeCustomData = (customData) => {
+    writeTSVData(customDataFile, customData)
 }
 
 const main = async () => {
@@ -70,12 +73,15 @@ const main = async () => {
     if(args.length >= 2) {
         [baseUrl, title] = args
         await updatePage(baseUrl, title)
+        writeCustomData(customData)
     } else if(args.length >= 1) {
         [baseUrl] = args
         await updateAllPages(baseUrl)
+        writeCustomData(customData)
     } else {
         baseUrl = process.env.WIKI_URL
         await updateAllPages(baseUrl)
+        writeCustomData(customData)
     }
 }
 
@@ -86,4 +92,5 @@ if(require.main === module) {
 module.exports = {
     updatePage,
     updateAllPages,
+    writeCustomData,
 }
