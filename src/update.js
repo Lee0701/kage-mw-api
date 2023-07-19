@@ -3,10 +3,11 @@ require('dotenv').config()
 const fs = require('fs')
 const axios = require('axios')
 const qs = require('qs')
-const { normalizeTitle, toInlineData, readTSVData, writeTSVData } = require('./functions')
-const { customDataFile } = require('./index')
+const { normalizeTitle, toInlineData, readTSVData, writeTSVData, readJSONData, writeJSONData } = require('./functions')
+const { customDataFile, indexDataFile } = require('./index')
 
 const customData = fs.existsSync(customDataFile) ? readTSVData(customDataFile) : {}
+const indexData = fs.existsSync(indexDataFile) ? readJSONData(indexDataFile) : {}
 axios.defaults.paramsSerializer = (params) => qs.stringify(params)
 
 const updateAllPages = async (baseUrl) => {
@@ -47,7 +48,7 @@ const updatePage = async (baseUrl, title) => {
         format: 'json',
         action: 'parse',
         page: page,
-        prop: 'wikitext',
+        prop: 'wikitext|categories',
         redirects: true,
     }
     const response = await axios.get(url, {params})
@@ -61,11 +62,15 @@ const updatePage = async (baseUrl, title) => {
         const d = toInlineData(content)
         customData[t] = d
     }
-    return customData
+    return {customData, indexData}
 }
 
 const writeCustomData = (customData) => {
     writeTSVData(customDataFile, customData)
+}
+
+const writeIndexData = (indexData) => {
+    writeJSONData(indexDataFile, indexData)
 }
 
 const main = async () => {
@@ -93,4 +98,5 @@ module.exports = {
     updatePage,
     updateAllPages,
     writeCustomData,
+    writeIndexData,
 }

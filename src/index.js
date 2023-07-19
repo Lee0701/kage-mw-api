@@ -2,11 +2,12 @@
 const fs = require('fs')
 const path = require('path')
 const readline = require('readline')
-const { readTSVData } = require('./functions')
+const { readTSVData, readJSONData } = require('./functions')
 const { Kage } = require('@kurgm/kage-engine')
 
 const dataFile = path.join('data', 'dump_newest_only.txt')
 const customDataFile = path.join('data', 'wiki.tsv')
+const indexDataFile = path.join('data', 'index.json')
 
 const loadDataFile = (kage, file) => new Promise((resolve, reject) => {
     const rl = readline.createInterface({input: fs.createReadStream(file)})
@@ -33,6 +34,11 @@ const loadCustomDataFile = async (kage, file) => {
     await loadCustomData(kage, data)
 }
 
+const loadIndexDataFile = async (file) => {
+    const data = fs.existsSync(file)? readJSONData(file) : {}
+    return data
+}
+
 const getDefault = async() => {
     const kage = new Kage()
     await Promise.all([
@@ -47,7 +53,10 @@ module.exports = {
     getDefault,
     dataFile,
     customDataFile,
+    indexDataFile,
+    searchIndex,
     loadDataFile,
     loadCustomData,
     loadCustomDataFile,
+    loadIndexDataFile,
 }

@@ -28,6 +28,15 @@ const writeTSVData = (fileName, data) => {
     fs.writeFileSync(fileName, result)
 }
 
+const readJSONData = (fileName) => {
+    return JSON.parse(fs.readFileSync(fileName, 'utf8'))
+}
+
+const writeJSONData = (fileName, data) => {
+    const result = JSON.stringify(data, null, 2)
+    fs.writeFileSync(fileName, result)
+}
+
 const normalizeTitle = (title) => {
     const parts = title.split(':')
     const namespace = parts.length >= 2 ? parts.shift() : ''
@@ -45,4 +54,6 @@ module.exports = {
     toMultilineData,
     readTSVData,
     writeTSVData,
+    readJSONData,
+    writeJSONData,
 }
