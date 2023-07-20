@@ -7,7 +7,9 @@ const { Kage } = require('@kurgm/kage-engine')
 
 const dataFile = path.join('data', 'dump_newest_only.txt')
 const customDataFile = path.join('data', 'wiki.tsv')
-const indexDataFile = path.join('data', 'index.json')
+
+const dataIndexFile = path.join('data', 'dump_newest_only.index.json')
+const customDataIndexFile = path.join('data', 'wiki.index.json')
 
 const loadDataFile = (kage, file) => new Promise((resolve, reject) => {
     const rl = readline.createInterface({input: fs.createReadStream(file)})
@@ -27,6 +29,10 @@ const loadCustomData = async (kage, data) => {
     Object.entries(data).forEach(([name, data]) => {
         kage.kBuhin.push(name, data)
     })
+}
+
+const loadIndexData = async (data) => {
+    return JSON.parse(data)
 }
 
 const loadCustomDataFile = async (kage, file) => {
@@ -53,10 +59,11 @@ module.exports = {
     getDefault,
     dataFile,
     customDataFile,
-    indexDataFile,
-    searchIndex,
+    dataIndexFile,
+    customDataIndexFile,
     loadDataFile,
     loadCustomData,
+    loadIndexData,
     loadCustomDataFile,
     loadIndexDataFile,
 }

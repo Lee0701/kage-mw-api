@@ -4,27 +4,35 @@ const fs = require('fs')
 const axios = require('axios')
 const qs = require('qs')
 const { normalizeTitle, toInlineData, readTSVData, writeTSVData, readJSONData, writeJSONData } = require('./functions')
-const { customDataFile, indexDataFile } = require('./index')
+const { customDataFile, customDataIndexFile } = require('./index')
 
 const customData = fs.existsSync(customDataFile) ? readTSVData(customDataFile) : {}
-const indexData = fs.existsSync(indexDataFile) ? readJSONData(indexDataFile) : {}
+const indexData = fs.existsSync(customDataIndexFile) ? readJSONData(customDataIndexFile) : {}
 axios.defaults.paramsSerializer = (params) => qs.stringify(params)
 
-const updateAllPages = async (baseUrl) => {
-    const pages = await allCharPages(baseUrl)
-    console.info(`Updating all ${pages.length} pages...`)
+const updateAllCharPages = async (baseUrl) => {
+    const pages = await allPagesInNamespace(baseUrl, process.env.CHAR_NS_ID)
+    console.info(`Updating all ${pages.length} char pages...`)
     for(const page of pages) {
-        await updatePage(baseUrl, page)
+        await updateCharPage(baseUrl, page)
     }
 }
 
-const allCharPages = async (baseUrl) => {
+const updateAllExplainCharPages = async (baseUrl) => {
+    const pages = await allPagesInNamespace(baseUrl, process.env.EXPLAIN_CHAR_NS_ID)
+    console.info(`Updating all ${pages.length} explain pages...`)
+    for(const page of pages) {
+        await updateExplainCharPage(baseUrl, page)
+    }
+}
+
+const allPagesInNamespace = async (baseUrl, namespace) => {
     const url = `${baseUrl}/api.php`
     const params = {
         format: 'json',
         action: 'query',
         list:'allpages',
-        apnamespace: process.env.CHAR_NS_ID,
+        apnamespace: namespace,
         apcontinue: '',
     }
     const data = []
@@ -41,14 +49,14 @@ const allCharPages = async (baseUrl) => {
     return data
 }
 
-const updatePage = async (baseUrl, title) => {
+const updateCharPage = async (baseUrl, title) => {
     const url = `${baseUrl}/api.php`
     const page = `${title}`
     const params = {
         format: 'json',
         action: 'parse',
         page: page,
-        prop: 'wikitext|categories',
+        prop: 'wikitext',
         redirects: true,
     }
     const response = await axios.get(url, {params})
@@ -62,7 +70,27 @@ const updatePage = async (baseUrl, title) => {
         const d = toInlineData(content)
         customData[t] = d
     }
-    return {customData, indexData}
+    return customData
+}
+
+const updateExplainCharPage = async (baseUrl, title) => {
+    const url = `${baseUrl}/api.php`
+    const prefix = process.env.EXPLAIN_CHAR_CAT_PREFIX
+    const page = `${title}`
+    const params = {
+        format: 'json',
+        action: 'parse',
+        page: page,
+        prop: 'categories',
+        redirects: true,
+    }
+    const response = await axios.get(url, {params})
+    const parse = response.data.parse
+    if(!parse) throw new Error(`Could not parse page ${page}`)
+    const categories = parse.categories.map((cat) => cat['*'])
+    const keywords = categories.map((name) => name.replace(prefix, ''))
+    keywords.forEach((keyword) => indexData[keyword] = normalizeTitle(title))
+    return indexData
 }
 
 const writeCustomData = (customData) => {
@@ -70,23 +98,29 @@ const writeCustomData = (customData) => {
 }
 
 const writeIndexData = (indexData) => {
-    writeJSONData(indexDataFile, indexData)
+    writeJSONData(customDataIndexFile, indexData)
 }
 
 const main = async () => {
     const args = process.argv.slice(2)
     if(args.length >= 2) {
         [baseUrl, title] = args
-        await updatePage(baseUrl, title)
+        await updateCharPage(baseUrl, title)
+        await updateExplainCharPage(baseUrl, title)
         writeCustomData(customData)
+        writeIndexData(indexData)
     } else if(args.length >= 1) {
         [baseUrl] = args
-        await updateAllPages(baseUrl)
+        await updateAllCharPages(baseUrl)
+        await updateAllExplainCharPages(baseUrl)
         writeCustomData(customData)
+        writeIndexData(indexData)
     } else {
         baseUrl = process.env.WIKI_URL
-        await updateAllPages(baseUrl)
+        await updateAllCharPages(baseUrl)
+        await updateAllExplainCharPages(baseUrl)
         writeCustomData(customData)
+        writeIndexData(indexData)
     }
 }
 
@@ -95,8 +129,10 @@ if(require.main === module) {
 }
 
 module.exports = {
-    updatePage,
-    updateAllPages,
+    updateCharPage,
+    updateExplainCharPage,
+    updateAllCharPages,
+    updateAllExplainCharPages,
     writeCustomData,
     writeIndexData,
 }

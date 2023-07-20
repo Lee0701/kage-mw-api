@@ -1,10 +1,10 @@
 
 require('dotenv').config()
 const express = require('express')
-const { getDefault, loadCustomData, loadIndexDataFile } = require('./index')
+const { getDefault, loadCustomData, loadIndexData } = require('./index')
 const { Polygons } = require('@kurgm/kage-engine')
 const sharp = require('sharp')
-const { updatePage, writeCustomData, writeIndexData } = require('./update')
+const { updateCharPage, updateExplainCharPage, writeCustomData, writeIndexData } = require('./update')
 const { toInlineData, isAllAscii, nonAsciiCharToAscii } = require('./functions')
 
 const makeGlyphWithChar = (polygons, kage, char) => {
@@ -88,14 +88,15 @@ const main = async () => {
 
     app.get('/update', async (req, res) => {
         const baseUrl = process.env.WIKI_URL
-        const namespace = process.env.CHAR_NS_NAME
         const char = req.query.char || ''
+        const title = char
         console.log('update', char)
         if(char) {
-            const title = `${namespace}:${char}`
-            const {customData, indexData} = await updatePage(baseUrl, title)
+            const customData = await updateCharPage(baseUrl, title)
+            const indexData = await updateExplainCharPage(baseUrl, title)
             res.status(200).send('200')
             loadCustomData(kage, customData)
+            loadIndexData(indexData)
             writeCustomData(customData)
             writeIndexData(indexData)
         } else {
