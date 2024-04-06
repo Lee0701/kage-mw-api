@@ -5,7 +5,7 @@ const { getDefault, loadCustomData } = require('./index')
 const { Polygons } = require('@kurgm/kage-engine')
 const sharp = require('sharp')
 const { updatePage, writeCustomData } = require('./update')
-const { toInlineData, isAllAscii, nonAsciiCharToAscii } = require('./functions')
+const { normalizeTitle, toInlineData, isAllAscii, nonAsciiCharToAscii } = require('./functions')
 
 const makeGlyphWithChar = (polygons, kage, char) => {
     kage.makeGlyph(polygons, 'u' + char.codePointAt(0).toString(16).padStart(4, '0'))
@@ -16,7 +16,6 @@ const makeGlyphWithName = (polygons, kage, name) => {
 }
 
 const preprocessData = (data) => {
-    data = data.split('').map((c) => nonAsciiCharToAscii(c)).join('')
     return data
 }
 

@@ -9,6 +9,7 @@ const nonAsciiCharToAscii = (c) => isAscii(c) ? c : charToAscii(c)
 const toInlineData = (data) => data.split('\n')
         .map((line) => line.trim())
         .filter((line) => line.length)
+        .map((line) => normalizeLine(line))
         .join('$')
 
 const toMultilineData = (data) => data.split('$').join('\n')
@@ -32,7 +33,13 @@ const normalizeTitle = (title) => {
     const parts = title.split(':')
     const namespace = parts.length >= 2 ? parts.shift() : ''
     const name = parts[0]
+    if(isAllAscii(name)) return name
     return name.split('').map((c) => isAscii(c) ? c : charToAscii(c)).join('-')
+}
+
+const normalizeLine = (line) => {
+    const parts = line.split(':')
+    return [...parts.slice(0, 7), normalizeTitle(parts[7] || ''), ...parts.slice(8)].join(':')
 }
 
 module.exports = {
